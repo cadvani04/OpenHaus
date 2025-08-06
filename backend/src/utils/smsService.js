@@ -1,13 +1,26 @@
 const twilio = require('twilio');
 
-// Initialize Twilio client
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+// Initialize Twilio client only if credentials are available
+let client = null;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+  client = twilio(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+  );
+}
 
 const sendAgreementSMS = async (phoneNumber, clientName, agreementToken, realtorName) => {
   try {
+    // Check if Twilio is configured
+    if (!client) {
+      console.log('⚠️ [SMS] Twilio not configured, skipping SMS send');
+      return {
+        success: false,
+        error: 'SMS service not configured',
+        message: 'SMS notifications are disabled'
+      };
+    }
+    
     const agreementUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}?token=${agreementToken}`;
     
     const message = `Hi ${clientName}, ${realtorName} has sent you a meeting agreement to review and sign. Please click this secure link to access it: ${agreementUrl} - HomeShow`;
@@ -46,6 +59,16 @@ const sendAgreementSMS = async (phoneNumber, clientName, agreementToken, realtor
 
 const sendNotificationSMS = async (phoneNumber, message) => {
   try {
+    // Check if Twilio is configured
+    if (!client) {
+      console.log('⚠️ [SMS] Twilio not configured, skipping notification SMS');
+      return {
+        success: false,
+        error: 'SMS service not configured',
+        message: 'SMS notifications are disabled'
+      };
+    }
+    
     console.log('📱 [SMS] Sending notification SMS:', {
       to: phoneNumber,
       message: message.substring(0, 50) + '...'

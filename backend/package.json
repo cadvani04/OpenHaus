@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/app.js",
+    "start": "bash start.sh",
     "dev": "nodemon src/app.js",
-    "setup-db": "node scripts/setup-database.js"
+    "setup-db": "node scripts/setup-database.js",
+    "deploy-setup": "node scripts/deploy-setup.js",
+    "test-deployment": "node scripts/test-deployment.js"
   },
   "keywords": [],
   "author": "",

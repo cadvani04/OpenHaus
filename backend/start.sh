@@ -7,6 +7,10 @@ echo "   NODE_ENV: ${NODE_ENV:-'development'}"
 echo "   DATABASE_URL: ${DATABASE_URL:+'set'}"
 echo "   JWT_SECRET: ${JWT_SECRET:+'set'}"
 
+# Log all Railway-related environment variables
+echo "🔍 Railway environment variables:"
+env | grep -E "(PORT|RAILWAY|NODE_ENV)" || echo "No Railway-specific variables found"
+
 # Wait a moment for Railway to fully initialize
 sleep 2
 

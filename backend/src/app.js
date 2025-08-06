@@ -37,8 +37,7 @@ async function testDatabaseConnection() {
   }
 }
 
-
-+// Middleware
+// Middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
@@ -109,6 +108,8 @@ app.use((error, req, res, next) => {
   });
 });
 
+// Get port from environment or use default
+// Railway typically sets PORT to something like 8080, 3000, or 10000
 const PORT = process.env.PORT || 3001;
 
 // Start server only after database connection test
@@ -119,16 +120,38 @@ async function startServer() {
   console.log('   NODE_ENV:', process.env.NODE_ENV || 'development');
   console.log('   DATABASE_URL:', process.env.DATABASE_URL ? 'set' : 'not set');
   console.log('   JWT_SECRET:', process.env.JWT_SECRET ? 'set' : 'not set');
+  console.log('   All env vars:', Object.keys(process.env).filter(key => key.includes('PORT') || key.includes('RAILWAY')));
   
   const dbConnected = await testDatabaseConnection();
   
-  app.listen(PORT, '0.0.0.0', () => {
+  // Listen on all interfaces with the correct port
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    const address = server.address();
     console.log(`🚀 HomeShow backend running on port ${PORT}`);
     console.log(` Health check: http://localhost:${PORT}/health`);
     console.log(` Auth endpoints: http://localhost:${PORT}/api/auth`);
     console.log(` Agreement endpoints: http://localhost:${PORT}/api/agreements`);
     console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(` Database: ${dbConnected ? 'connected' : 'disconnected'}`);
+    console.log(` Server address: ${address.address}:${address.port}`);
+    console.log(` Railway URL: https://${process.env.RAILWAY_STATIC_URL || 'your-app'}.railway.app`);
+  });
+  
+  // Handle graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('🛑 Received SIGTERM, shutting down gracefully...');
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
+  });
+  
+  process.on('SIGINT', () => {
+    console.log('🛑 Received SIGINT, shutting down gracefully...');
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
   });
 }
 

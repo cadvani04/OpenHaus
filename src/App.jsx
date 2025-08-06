@@ -30,10 +30,12 @@ function AppContent() {
 
   const loadAgreementByToken = async (token) => {
     try {
-      // Use the same API base URL logic as the api service
-      const apiBaseUrl = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' 
-        ? 'http://192.168.12.181:3001/api' 
-        : 'http://localhost:3001/api';
+      // Use environment variable for backend URL
+      const apiBaseUrl = process.env.REACT_APP_BACKEND_URL 
+        ? `${process.env.REACT_APP_BACKEND_URL}/api`
+        : (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' 
+          ? 'http://192.168.12.181:3001/api' 
+          : 'http://localhost:3001/api');
       
       const response = await fetch(`${apiBaseUrl}/agreements/public/${token}`);
       const data = await response.json();
@@ -58,10 +60,12 @@ function AppContent() {
       const token = urlParams.get('token');
       
       if (token) {
-        // Use the same API base URL logic as the api service
-        const apiBaseUrl = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' 
-          ? 'http://192.168.12.181:3001/api' 
-          : 'http://localhost:3001/api';
+        // Use environment variable for backend URL
+        const apiBaseUrl = process.env.REACT_APP_BACKEND_URL 
+          ? `${process.env.REACT_APP_BACKEND_URL}/api`
+          : (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' 
+            ? 'http://192.168.12.181:3001/api' 
+            : 'http://localhost:3001/api');
         
         const response = await fetch(`${apiBaseUrl}/agreements/public/${token}/sign`, {
           method: 'POST',

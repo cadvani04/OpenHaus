@@ -90,12 +90,11 @@ const LoginForm = ({ onSwitchToRegister }) => {
           onClick={() => {
             console.log('🧪 Manual API test...');
             
-            // Test both endpoints
-            Promise.all([
-              fetch('http://192.168.12.181:3001/test'),
-              fetch('http://192.168.12.181:3001/api/test')
-            ])
-            .then(responses => Promise.all(responses.map(r => r.json())))
+                        // Test API endpoint
+            fetch(process.env.REACT_APP_BACKEND_URL 
+              ? `${process.env.REACT_APP_BACKEND_URL}/api/test`
+              : 'http://192.168.12.181:3001/api/test')
+              .then(response => response.json())
             .then(data => {
               console.log('✅ Manual API test successful:', data);
               alert('API test successful! Check console for details.');

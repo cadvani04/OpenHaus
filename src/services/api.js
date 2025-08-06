@@ -1,12 +1,25 @@
-// Detect if we're on mobile (different IP) or desktop (localhost)
+/**
+ * API Service Configuration
+ * 
+ * This file uses the REACT_APP_BACKEND_URL environment variable for all API calls.
+ * Set REACT_APP_BACKEND_URL in your .env file to point to your backend.
+ * 
+ * Example: REACT_APP_BACKEND_URL=https://your-backend.railway.app
+ */
+
+// Use BACKEND_URL environment variable for all API calls
 const getApiBaseUrl = () => {
-  console.log('🔍 URL Detection Debug:', {
-    hostname: window.location.hostname,
-    href: window.location.href,
-    isLocalhost: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  });
+  if (process.env.REACT_APP_BACKEND_URL) {
+    console.log('🔧 Using environment variable BACKEND_URL:', process.env.REACT_APP_BACKEND_URL);
+    return `${process.env.REACT_APP_BACKEND_URL}/api`;
+  }
   
-  // If we're on mobile (different device), use the computer's IP
+
+};
+console.log('🔧 getApiBaseUrl:', getApiBaseUrl());
+  
+  /*
+  // Fallback for local development only
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     console.log('📱 Mobile detected, using IP address');
     return 'http://192.168.12.181:3001/api';
@@ -15,16 +28,20 @@ const getApiBaseUrl = () => {
   console.log('💻 Desktop detected, using localhost');
   return 'http://localhost:3001/api';
 };
-
+*/
 const API_BASE_URL = getApiBaseUrl();
 console.log('🔧 API_BASE_URL set to:', API_BASE_URL);
 console.log('🔧 Current hostname:', window.location.hostname);
 console.log('🔧 Current URL:', window.location.href);
 console.log('🔧 User Agent:', navigator.userAgent);
 
-// Test API connectivity immediately
+// Test API connectivity immediately using the configured backend URL
 console.log('🧪 Testing API connectivity...');
-fetch(`${API_BASE_URL.replace('/api', '')}/api/test`)
+const testUrl = process.env.REACT_APP_BACKEND_URL 
+  ? `${process.env.REACT_APP_BACKEND_URL}/api/test`
+  : `${API_BASE_URL.replace('/api', '')}/api/test`;
+
+fetch(testUrl)
   .then(response => response.json())
   .then(data => console.log('✅ API connectivity test successful:', data))
   .catch(error => console.error('❌ API connectivity test failed:', error));

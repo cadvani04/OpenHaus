@@ -65,7 +65,8 @@ app.get('/health', async (req, res) => {
       status: 'OK', 
       timestamp: new Date().toISOString(),
       database: 'connected',
-      port: process.env.PORT || 3001
+      port: process.env.PORT || 3001,
+      environment: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
     res.status(200).json({ 
@@ -74,9 +75,21 @@ app.get('/health', async (req, res) => {
       database: 'disconnected',
       error: error.message,
       port: process.env.PORT || 3001,
+      environment: process.env.NODE_ENV || 'development',
       message: 'App is running but database is not connected'
     });
   }
+});
+
+// Railway-specific health check (no database dependency)
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'HomeShow Backend is running',
+    timestamp: new Date().toISOString(),
+    port: process.env.PORT || 3001,
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Basic test route
@@ -144,6 +157,12 @@ async function startServer() {
       console.log('✅ Server closed');
       process.exit(0);
     });
+    
+    // Force exit after 10 seconds if graceful shutdown fails
+    setTimeout(() => {
+      console.log('⚠️ Force exiting after timeout');
+      process.exit(1);
+    }, 10000);
   });
   
   process.on('SIGINT', () => {
@@ -151,6 +170,21 @@ async function startServer() {
     server.close(() => {
       console.log('✅ Server closed');
       process.exit(0);
+    });
+  });
+  
+  // Handle uncaught exceptions
+  process.on('uncaughtException', (error) => {
+    console.error('💥 Uncaught Exception:', error);
+    server.close(() => {
+      process.exit(1);
+    });
+  });
+  
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+    server.close(() => {
+      process.exit(1);
     });
   });
 }
